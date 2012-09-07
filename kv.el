@@ -29,6 +29,9 @@
 (eval-when-compile (require 'cl))
 
 (defun kvalist->hash (alist &rest hash-table-args)
+  "Convert ALIST to a HASH.
+
+HASH-TABLE-ARGS are passed to the hash-table creation."
   (let ((table (apply 'make-hash-table hash-table-args)))
     (mapcar
      (lambda (pair)
@@ -37,6 +40,7 @@
     table))
 
 (defun kvhash->alist (hash)
+  "Convert HASH to an ALIST."
   (let (store)
     (maphash
      (lambda (key value)
