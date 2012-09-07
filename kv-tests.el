@@ -37,7 +37,7 @@
      '<)
     '(("b" . 17)
       ("z" . 20)
-      ("a" . 20)))))`
+      ("a" . 20)))))
 
 (ert-deftest kvdotassoc ()
   (should
