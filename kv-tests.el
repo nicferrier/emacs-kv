@@ -15,6 +15,30 @@
     '((name1 . value1)
       (name2 . value2)))))
 
+(ert-deftest kvalist-sort ()
+  (should
+   (equal
+    (kvalist-sort
+     (list '("z" . 20)
+           '("a" . 20)
+           '("b" . 17))
+     'string-lessp)
+    '(("a" . 20)
+      ("b" . 17)
+      ("z" . 20)))))
+
+(ert-deftest kvalist-sort-by-value ()
+  (should
+   (equal
+    (kvalist-sort-by-value
+     (list '("z" . 20)
+           '("a" . 20)
+           '("b" . 17))
+     '<)
+    '(("b" . 17)
+      ("z" . 20)
+      ("a" . 20)))))`
+
 (ert-deftest kvdotassoc ()
   (should
    (equal

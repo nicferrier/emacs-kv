@@ -69,6 +69,14 @@
   "Get just the values from the alist."
   (mapcar (lambda (pair) (cdr pair)) alist))
 
+(defun kvalist-sort (alist pred)
+  "Sort ALIST (by key) with PRED."
+  (sort alist (lambda (a b) (funcall pred (car a) (car b)))))
+
+(defun kvalist-sort-by-value (alist pred)
+  "Sort ALIST by value with PRED."
+  (sort alist (lambda (a b) (funcall pred (cdr a) (cdr b)))))
+
 (defun kvdotassoc-fn (expr table func)
   "Use the dotted EXPR to access deeply nested data in TABLE.
 
