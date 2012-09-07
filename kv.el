@@ -5,6 +5,9 @@
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
 ;; Version: 0.0.1
+;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
+;; Created: 7th September 2012
+
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,6 +26,8 @@
 
 ;; Some routines for working with key/value data structures like
 ;; hash-tables and alists and plists.
+
+;; This also takes over the dotassoc stuff and provides it separately.
 
 ;;; Code:
 
