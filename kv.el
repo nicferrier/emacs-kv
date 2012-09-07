@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
