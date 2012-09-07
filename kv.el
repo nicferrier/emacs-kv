@@ -38,7 +38,7 @@
 
 HASH-TABLE-ARGS are passed to the hash-table creation."
   (let ((table (apply 'make-hash-table hash-table-args)))
-    (mapcar
+    (mapc
      (lambda (pair)
        (puthash (car pair) (cdr pair) table))
      alist)
