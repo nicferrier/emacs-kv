@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.2
+;; Version: 0.0.3
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -46,14 +46,15 @@ HASH-TABLE-ARGS are passed to the hash-table creation."
 
 (defun kvhash->alist (hash)
   "Convert HASH to an ALIST."
-  (let (store)
+  (when hash
+    (let (store)
     (maphash
      (lambda (key value)
        (setq
         store
         (append (list (cons key value)) store)))
      hash)
-    store))
+    store)))
 
 (defun kvalist->plist (alist)
   "Convert an alist to a plist."

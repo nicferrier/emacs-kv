@@ -1,0 +1,75 @@
+A collection of tools for dealing with key/value data structures such
+as plists, alists and hash-tables.
+
+=== kvalist->hash alist &rest hash-table-args ===
+
+Convert //alist// to a HASH.
+
+//hash-table-args// are passed to the hash-table creation.
+
+
+=== kvalist->keys alist ===
+
+Get just the keys from the alist.
+
+
+=== kvalist->plist alist ===
+
+Convert an alist to a plist.
+
+
+=== kvalist->values alist ===
+
+Get just the values from the alist.
+
+
+=== kvalist-sort alist pred ===
+
+Sort //alist// (by key) with //pred//.
+
+
+=== kvalist-sort-by-value alist pred ===
+
+Sort //alist// by value with //pred//.
+
+
+=== kvdotassoc expr table ===
+
+Dotted expression handling with [[assoc]].
+
+
+=== kvdotassoc-fn expr table func ===
+
+Use the dotted //expr// to access deeply nested data in //table//.
+
+//expr// is a dot separated expression, either a symbol or a string.
+For example:
+
+{{{
+ "a.b.c"
+}}}
+
+or:
+
+{{{
+ 'a.b.c
+}}}
+
+If the //expr// is a symbol then the keys of the alist are also
+expected to be symbols.
+
+//table// is expected to be an alist currently.
+
+//func// is some sort of [[assoc]] like function.
+
+
+=== kvdotassq expr table ===
+
+Dotted expression handling with [[assq]].
+
+
+=== kvhash->alist hash ===
+
+Convert //hash// to an ALIST.
+
+
