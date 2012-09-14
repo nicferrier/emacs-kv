@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.3
+;; Version: 0.0.4
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -86,6 +86,14 @@ HASH-TABLE-ARGS are passed to the hash-table creation."
 (defun kvalist-sort-by-value (alist pred)
   "Sort ALIST by value with PRED."
   (sort alist (lambda (a b) (funcall pred (cdr a) (cdr b)))))
+
+(defun kvalist->filter-keys (alist &rest keys)
+  "Return the ALIST filtered to the KEYS list.
+
+Only pairs where the car is a `member' of KEYS will be returned."
+  (loop for a in alist
+     if (member (car a) keys)
+     collect a))
 
 (defun kvdotassoc-fn (expr table func)
   "Use the dotted EXPR to access deeply nested data in TABLE.
