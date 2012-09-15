@@ -76,6 +76,7 @@ HASH-TABLE-ARGS are passed to the hash-table creation."
 
 The keys are expected to be :prefixed and the colons are removed.
 The keys in the resulting alist are symbols."
+  ;; RECURSION KLAXON
   (labels
       ((plist->alist-cons (a b lst)
          (let ((key (intern (substring (symbol-name a) 1))))
@@ -124,17 +125,21 @@ Only pairs where the car is a `member' of KEYS will be returned."
      collect a))
 
 (defun kvplist->filter-keys (plist &rest keys)
-  "Return the PLIST filtered to the KEYS list.
-
-Only plist parts where the car is a `member' of KEYS will be
-returned."
+  "Filter the plist to just keys."
   (kvalist->plist
-   (loop for a in (kvplist-> plist)
-      if (member (car a) keys)
-      collect a)))
+   (apply
+    'kvalist->filter-keys
+    (cons (kvplist->alist plist) keys))))
+
+(defun kvplist2->filter-keys (plist2 &rest keys)
+  "Return the PLIST2 (a list of plists) filtered to the KEYS."
+  (loop for plist in plist2
+     collect (apply 'kvplist->filter-keys (cons plist keys))))
 
 (defun kvcmp (a b)
-  "Do a comparison of the two values using printable syntax."
+  "Do a comparison of the two values using printable syntax.
+
+Use this as the function to pass to `sort'."
   (string-lessp (format "%S" a)
                 (format "%S" b)))
 
