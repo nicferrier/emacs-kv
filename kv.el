@@ -145,15 +145,19 @@ KEYS must actually be :-less symbols.
   (loop for alist in alist2
      collect (apply 'kvalist->filter-keys (cons alist keys))))
 
-(defun kvalist2->alist (alist2 car-key cdr-key)
+(defun kvalist2->alist (alist2 car-key cdr-key &optional proper)
   "Reduce the ALIST2 (a list of alists) to a single alist.
 
 CAR-KEY is the key of each alist to use as the resulting key and
-CDR-KEY is the key of each alist to user as the resulting cdr."
+CDR-KEY is the key of each alist to user as the resulting cdr.
+
+If PROPER is `t' then the alist is a list of proper lists, not
+cons cells."
   (loop for alist in alist2
-       collect (cons
-                (assoc-default car-key alist)
-                (assoc-default cdr-key alist))))
+       collect (apply (if proper 'list 'cons)
+                      (list
+                       (assoc-default car-key alist)
+                       (assoc-default cdr-key alist)))))
 
 (defun kvcmp (a b)
   "Do a comparison of the two values using printable syntax.
