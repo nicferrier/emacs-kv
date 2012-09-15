@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.4
+;; Version: 0.0.5
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -71,6 +71,34 @@ HASH-TABLE-ARGS are passed to the hash-table creation."
                   (car pair)))))
              (cdr pair))))
 
+(defun kvplist->alist (plist)
+  "Convert PLIST to an alist.
+
+The keys are expected to be :prefixed and the colons are removed.
+The keys in the resulting alist are symbols."
+  (labels
+      ((plist->alist-cons (a b lst)
+         (let ((key (intern (substring (symbol-name a) 1))))
+           (if (car-safe lst)
+               (cons
+                (cons key b)
+                (plist->alist-cons
+                 (car lst)
+                 (cadr lst)
+                 (cddr lst)))
+               ;; Else
+               (cons (cons key b) nil)))))
+    (plist->alist-cons
+     (car plist)
+     (cadr plist)
+     (cddr plist))))
+
+(defun kvalist2->plist (alist2)
+  "Convert a list of alists too a list of plists."
+  (loop for alist in alist2
+       append
+       (list (kvalist->plist alist))))
+
 (defun kvalist->keys (alist)
   "Get just the keys from the alist."
   (mapcar (lambda (pair) (car pair)) alist))
@@ -94,6 +122,21 @@ Only pairs where the car is a `member' of KEYS will be returned."
   (loop for a in alist
      if (member (car a) keys)
      collect a))
+
+(defun kvplist->filter-keys (plist &rest keys)
+  "Return the PLIST filtered to the KEYS list.
+
+Only plist parts where the car is a `member' of KEYS will be
+returned."
+  (kvalist->plist
+   (loop for a in (kvplist-> plist)
+      if (member (car a) keys)
+      collect a)))
+
+(defun kvcmp (a b)
+  "Do a comparison of the two values using printable syntax."
+  (string-lessp (format "%S" a)
+                (format "%S" b)))
 
 (defun kvdotassoc-fn (expr table func)
   "Use the dotted EXPR to access deeply nested data in TABLE.
