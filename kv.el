@@ -71,28 +71,22 @@ HASH-TABLE-ARGS are passed to the hash-table creation."
                   (car pair)))))
              (cdr pair))))
 
+(defun keyword->symbol (keyword)
+  "A keyword is a symbol leading with a :.
+
+Converting to a symbol means dropping the :."
+  (intern (substring (symbol-name keyword) 1)))
+
 (defun kvplist->alist (plist)
   "Convert PLIST to an alist.
 
 The keys are expected to be :prefixed and the colons are removed.
 The keys in the resulting alist are symbols."
   ;; RECURSION KLAXON
-  (labels
-      ((plist->alist-cons (a b lst)
-         (let ((key (intern (substring (symbol-name a) 1))))
-           (if (car-safe lst)
-               (cons
-                (cons key b)
-                (plist->alist-cons
-                 (car lst)
-                 (cadr lst)
-                 (cddr lst)))
-               ;; Else
-               (cons (cons key b) nil)))))
-    (plist->alist-cons
-     (car plist)
-     (cadr plist)
-     (cddr plist))))
+  (when plist
+    (destructuring-bind (key value &rest plist) plist
+      (cons `(,(keyword->symbol key) . ,value)
+            (kvplist->alist plist)))))
 
 (defun kvalist2->plist (alist2)
   "Convert a list of alists too a list of plists."
