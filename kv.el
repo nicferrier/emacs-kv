@@ -163,8 +163,8 @@ cons cells."
   "Do a comparison of the two values using printable syntax.
 
 Use this as the function to pass to `sort'."
-  (string-lessp (format "%S" a)
-                (format "%S" b)))
+  (string-lessp (if a (format "%S" a) "")
+                (if b (format "%S" b) "")))
 
 (defun kvdotassoc-fn (expr table func)
   "Use the dotted EXPR to access deeply nested data in TABLE.
