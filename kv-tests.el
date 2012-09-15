@@ -39,6 +39,17 @@
       ("z" . 20)
       ("a" . 20)))))
 
+(ert-deftest kvcmp ()
+  "Test the general cmp function."
+  (should
+   (equal
+    '((a . 10)(b . 20)(c . 5))
+   (sort '((a . 10)(b . 20)(c . 5)) 'kvcmp)))
+  (should
+   (equal
+    '((a . 10)(b . 20)(c . 5))
+   (sort '((b . 20)(c . 5)(a . 10)) 'kvcmp))))
+
 (ert-deftest kvdotassoc ()
   (should
    (equal
