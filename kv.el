@@ -153,6 +153,15 @@ cons cells."
                        (assoc-default car-key alist)
                        (assoc-default cdr-key alist)))))
 
+(defun kvalist-keys->symbols (alist)
+  "Convert the keys in ALIST to symbols."
+  (mapcar
+   (lambda (pair)
+     (cons
+      (intern (format "%s" (car pair)))
+      (cdr pair)))
+   alist))
+
 (defun kvcmp (a b)
   "Do a comparison of the two values using printable syntax.
 

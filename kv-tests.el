@@ -50,6 +50,14 @@
     '((a . 10)(b . 20)(c . 5))
    (sort '((b . 20)(c . 5)(a . 10)) 'kvcmp))))
 
+(ert-deftest kvalist-keys->symbols ()
+  "Test the key transformation."
+  (should
+   (equal
+    '((a . 10)(\10 . 20)(\(a\ b\ c\) . 30))
+    (kvalist-keys->symbols
+     '(("a" . 10)(10 . 20)((a b c) . 30))))))
+
 (ert-deftest kvdotassoc ()
   (should
    (equal
