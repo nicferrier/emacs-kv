@@ -153,14 +153,19 @@ cons cells."
                        (assoc-default car-key alist)
                        (assoc-default cdr-key alist)))))
 
-(defun kvalist-keys->symbols (alist)
-  "Convert the keys in ALIST to symbols."
+(defun kvalist-keys->* (alist fn)
+  "Convert the keys of ALIST through FN."
   (mapcar
    (lambda (pair)
      (cons
-      (intern (format "%s" (car pair)))
+      (funcall fn (car pair))
       (cdr pair)))
    alist))
+
+(defun kvalist-keys->symbols (alist)
+  "Convert the keys of ALIST into symbols."
+  (kvalist-keys->* alist (lambda (key) (intern (format "%s" key)))))
+
 
 (defun kvcmp (a b)
   "Do a comparison of the two values using printable syntax.
