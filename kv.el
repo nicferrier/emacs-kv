@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.5
+;; Version: 0.0.6
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -219,7 +219,7 @@ FUNC is some sort of `assoc' like function."
 (defalias 'dotassoc 'kvdotassoc)
 (defalias 'dotassq 'kvdotassq)
 
-(defmacro kv-map-bind (args sexp seq)
+(defmacro kvmap-bind (args sexp seq)
   "A hybrid of `destructuring-bind' and `mapcar'
 ARGS shall be of the form used with `destructuring-bind'
 
@@ -233,7 +233,7 @@ SEXP will describe the structure desired."
                (destructuring-bind ,args ,entry ,sexp))
              ,seq)))
 
-(defalias 'map-bind 'kv-map-bind)
+(defalias 'map-bind 'kvmap-bind)
 
 (provide 'kv)
 (provide 'dotassoc)
