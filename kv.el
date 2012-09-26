@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.6
+;; Version: 0.0.7
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -44,17 +44,81 @@ HASH-TABLE-ARGS are passed to the hash-table creation."
      alist)
     table))
 
-(defun kvhash->alist (hash)
-  "Convert HASH to an ALIST."
+(defun kvhash->alist (hash &optional func)
+  "Convert HASH to an ALIST.
+
+Optionally filter through FUNC, only non-nil values returned from
+FUNC are stored as the resulting value against the converted
+key."
   (when hash
     (let (store)
-    (maphash
-     (lambda (key value)
-       (setq
-        store
-        (append (list (cons key value)) store)))
-     hash)
-    store)))
+      (maphash
+       (lambda (key value)
+         (when key
+           (if (and (functionp func))
+               (let ((res (funcall func key value)))
+                 (when res
+                   (setq store (acons key res store))))
+               ;; else no filtering, just return
+               (setq store (acons key value store)))))
+       hash)
+      store)))
+
+(defun kvassoc= (key value alist)
+  "Is the value assocd to KEY in ALIST equal to VALUE?
+
+Returns the value looked up by KEY that passes, so normally:
+
+  KEY . VALUE
+"
+  (let ((v (assoc key alist)))
+    (and v (equal (cdr v) value) v)))
+
+(defun kvassoq= (key value alist)
+  "Test the VALUE with the value bound to KEY in ALIST.
+
+The lookup mechanism is to ensure the key is a symbol and then
+use assq.  Hence the name of the function being a mix of assoc
+and assq.
+
+Returns the value looked up by KEY that passes, so normally:
+
+  KEY . VALUE
+"
+  (let ((v (or
+            (assq (if (symbolp key) key (intern key)) alist)
+            (or (assoc key alist)
+                ;; not sure about this behaviour... see test
+                (assoc (symbol-name key) alist)))))
+    (and v (equal (cdr v) value) v)))
+
+(defun* kvquery->func (query &key (equal-func 'kvassoc))
+  "Turn a simple QUERY expression into a filter function.
+
+EQUAL-FUNC is the function that implements the equality
+predicate."
+  (flet ((query-parse (query)
+           (let ((part (car query))
+                 (rest (cdr query)))
+             (cond
+               ((eq part '|)
+                (cons 'or
+                      (loop for i in rest
+                         collect (query-parse i))))
+               ((eq part '&)
+                (cons 'and
+                      (loop for i in rest
+                         collect (query-parse i))))
+               ((eq part '=)
+                (destructuring-bind (field value) rest
+                  (list equal-func field value (quote record))))))))
+    (eval `(lambda (record) ,(query-parse query)))))
+
+(defun kvplist2get (plist2 keyword value)
+  "Get the plist with KEYWORD / VALUE from the list of plists."
+  (loop for plist in plist2
+       if (equal (plist-get keyword) value)
+       return plist))
 
 (defun kvalist->plist (alist)
   "Convert an alist to a plist."
@@ -145,6 +209,17 @@ KEYS must actually be :-less symbols.
 CAR-KEY is the key of each alist to use as the resulting key and
 CDR-KEY is the key of each alist to user as the resulting cdr.
 
+For example, if CAR-KEY is `email' and CDR-KEY is `name' the
+records:
+
+  '((user . \"nic\")(name . \"Nic\")(email . \"nic@domain\")
+    (user . \"jim\")(name . \"Jim\")(email . \"jim@domain\"))
+
+could be reduced to:
+
+  '((\"nic@domain\" . \"Nic\")
+    (\"jim@domain\" . \"Jic\"))
+
 If PROPER is `t' then the alist is a list of proper lists, not
 cons cells."
   (loop for alist in alist2
@@ -166,6 +241,16 @@ cons cells."
   "Convert the keys of ALIST into symbols."
   (kvalist-keys->* alist (lambda (key) (intern (format "%s" key)))))
 
+(defun kvalist2-filter (alist2 fn)
+  "Filter the list of alists with FN."
+  (let (value)
+    (loop for rec in alist2
+       do (setq value (funcall fn rec))
+       if value
+       collect rec)))
+
+(defun kvidentity (a b)
+  (cons a b))
 
 (defun kvcmp (a b)
   "Do a comparison of the two values using printable syntax.
@@ -173,6 +258,10 @@ cons cells."
 Use this as the function to pass to `sort'."
   (string-lessp (if a (format "%S" a) "")
                 (if b (format "%S" b) "")))
+
+(defun kvqsort (lst)
+  "Do a sort using `kvcmp'."
+  (sort lst 'kvcmp))
 
 (defun kvdotassoc-fn (expr table func)
   "Use the dotted EXPR to access deeply nested data in TABLE.
@@ -220,7 +309,9 @@ FUNC is some sort of `assoc' like function."
 (defalias 'dotassq 'kvdotassq)
 
 (defmacro kvmap-bind (args sexp seq)
-  "A hybrid of `destructuring-bind' and `mapcar'
+  "Bind ARGS to successive elements of SEQ and eval SEXP.
+
+A hybrid of `destructuring-bind' and `mapcar'
 ARGS shall be of the form used with `destructuring-bind'
 
 Unlike most other mapping forms this is a macro intended to be
@@ -232,6 +323,7 @@ SEXP will describe the structure desired."
     `(mapcar (lambda (,entry)
                (destructuring-bind ,args ,entry ,sexp))
              ,seq)))
+
 
 (defalias 'map-bind 'kvmap-bind)
 

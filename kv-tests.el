@@ -13,7 +13,14 @@
        (string-lessp (symbol-name (car a))
                      (symbol-name (car b)))))
     '((name1 . value1)
-      (name2 . value2)))))
+      (name2 . value2))))
+  (should
+   (equal
+    (sort '((a . 1)
+            (c . 3)) 'kvcmp)
+    (sort (kvhash->alist
+           (kvalist->hash '((a . 1)(b . 2)(c . 3)))
+           (lambda (k v) (and (memq k '(a c)) v))) 'kvcmp))))
 
 (ert-deftest kvalist-sort ()
   (should
@@ -57,6 +64,65 @@
     '((a . 10)(\10 . 20)(\(a\ b\ c\) . 30))
     (kvalist-keys->symbols
      '(("a" . 10)(10 . 20)((a b c) . 30))))))
+
+(ert-deftest kvassoc= ()
+  (should
+   (equal
+    '("testkey" . "testvalue")
+    (kvassoc= "testkey" "testvalue" '(("testkey" . "testvalue"))))))
+
+(ert-deftest kvassoq= ()
+  (should
+   (equal
+    '(testkey . "testvalue")
+    (kvassoq= 'testkey "testvalue" '((testkey . "testvalue")))))
+  (should
+   (equal
+    '("testkey" . "testvalue")
+    (kvassoq= "testkey" "testvalue" '(("testkey" . "testvalue")))))
+  ;; Not sure about this - should we really find strings with symbols?
+  (should
+   (equal
+    '("testkey" . "testvalue")
+    (kvassoq= 'testkey "testvalue" '(("testkey" . "testvalue"))))))
+
+(ert-deftest kvalist2-filter ()
+  (should
+   (equal
+    '(((a . 1)(b . 2)))
+    (kvalist2-filter
+     '(((a . 1)(b . 2))((c . 1)(d . 2)))
+     (lambda (alist)
+       (or
+        (memq 'a (kvalist->keys alist))
+        (memq 'b (kvalist->keys alist))))))))
+
+(ert-deftest kvquery->func ()
+  "Test the query language."
+  (should
+   (equal
+    '((("a" . 1)("b" . 2))(("c" . 1)("d" . 2)))
+    (kvalist2-filter
+     '((("a" . 1)("b" . 2))(("c" . 1)("d" . 2)))
+     (kvquery->func '(|(= "a" 1)(= "d" 2))))))
+  (should
+   (equal
+    '((("a" . 1)("b" . 2)))
+    (kvalist2-filter
+     '((("a" . 1)("b" . 2))(("c" . 1)("d" . 2)))
+     (kvquery->func '(= "a" 1)))))
+  (should
+   (equal
+    '()
+    (kvalist2-filter
+     '((("a" . 1)("b" . 2))(("c" . 1)("d" . 2)))
+     (kvquery->func '(&(= "a" 1)(= "c" 1))))))
+  (should
+   (equal
+    '((("a" . 1)("b" . 2)))
+    (kvalist2-filter
+     '((("a" . 1)("b" . 2))(("c" . 1)("d" . 2)))
+     (kvquery->func '(&(= "a" 1)(= "b" 2)))))))
 
 (ert-deftest kvdotassoc ()
   (should
