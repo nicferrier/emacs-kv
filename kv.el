@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.7
+;; Version: 0.0.8
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -74,6 +74,14 @@ Returns the value looked up by KEY that passes, so normally:
   (let ((v (assoc key alist)))
     (and v (equal (cdr v) value) v)))
 
+(defun kvassoqc (key alist)
+  "String or symbol assoc."
+  (let ((v (or
+            (assq (if (symbolp key) key (intern key)) alist)
+            (or (assoc key alist)
+                ;; not sure about this behaviour... see test
+                (assoc (symbol-name key) alist)))))  v))
+
 (defun kvassoq= (key value alist)
   "Test the VALUE with the value bound to KEY in ALIST.
 
@@ -85,11 +93,7 @@ Returns the value looked up by KEY that passes, so normally:
 
   KEY . VALUE
 "
-  (let ((v (or
-            (assq (if (symbolp key) key (intern key)) alist)
-            (or (assoc key alist)
-                ;; not sure about this behaviour... see test
-                (assoc (symbol-name key) alist)))))
+  (let ((v (kvassoqc key alist)))
     (and v (equal (cdr v) value) v)))
 
 (defun* kvquery->func (query &key (equal-func 'kvassoc))
@@ -117,8 +121,8 @@ predicate."
 (defun kvplist2get (plist2 keyword value)
   "Get the plist with KEYWORD / VALUE from the list of plists."
   (loop for plist in plist2
-       if (equal (plist-get keyword) value)
-       return plist))
+     if (equal (plist-get plist keyword) value)
+     return plist))
 
 (defun kvalist->plist (alist)
   "Convert an alist to a plist."
