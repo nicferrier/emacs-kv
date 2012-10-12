@@ -309,6 +309,10 @@ FUNC is some sort of `assoc' like function."
   "Dotted expression handling with `assq'."
   (kvdotassoc-fn expr table 'assq))
 
+(defun kvdotassoc= (expr value table)
+  (let ((v (kvdotassoc expr table)))
+    (and v (equal v value) v)))
+
 (defalias 'dotassoc 'kvdotassoc)
 (defalias 'dotassq 'kvdotassq)
 
