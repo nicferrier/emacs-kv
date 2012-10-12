@@ -143,4 +143,12 @@
     '(:a1 value1 :a2 value2)
     (kvalist->plist '((a1 . value1)(a2 . value2))))))
 
+(ert-deftest kvplist->filter-keys ()
+  (should
+   (equal
+    (list :key1 "value1" :key4 10)
+    (kvplist->filter-keys
+     (list :key1 "value1" :key2 t :key3 '(big list of symbols) :key4 10)
+     'key1 'key4))))
+
 ;;; kv-tests.el ends here
