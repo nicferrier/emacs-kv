@@ -316,10 +316,17 @@ FUNC is some sort of `assoc' like function."
 (defalias 'dotassoc 'kvdotassoc)
 (defalias 'dotassq 'kvdotassq)
 
-(defmacro kvmap-bind (args sexp seq)
-  "Bind ARGS to successive elements of SEQ and eval SEXP.
+;; Thank you taylanub for this wonderful abstraction.
+(defmacro kv--destructuring-map (map-function args sequence &rest body)
+  "Helper macro for `destructuring-mapcar' and `destructuring-map'."
+  (declare (indent 3))
+  (let ((entry (gensym)))
+    `(,map-function (lambda (,entry)
+                      (destructuring-bind ,args ,entry ,@body))
+                    ,sequence)))
 
-A hybrid of `destructuring-bind' and `mapcar'
+(defmacro kvmap-bind (args sexp seq)
+  "A hybrid of `destructuring-bind' and `mapcar'
 ARGS shall be of the form used with `destructuring-bind'
 
 Unlike most other mapping forms this is a macro intended to be
@@ -327,11 +334,7 @@ used for structural transformations, so the expected usage will
 be that ARGS describes the structure of the items in SEQ, and
 SEXP will describe the structure desired."
   (declare (indent 2))
-  (let ((entry (gensym)))
-    `(mapcar (lambda (,entry)
-               (destructuring-bind ,args ,entry ,sexp))
-             ,seq)))
-
+  `(kv--destructuring-map mapcar ,args ,seq ,sexp))
 
 (defalias 'map-bind 'kvmap-bind)
 
