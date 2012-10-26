@@ -189,13 +189,16 @@ Only pairs where the car is a `member' of KEYS will be returned."
 (defun kvplist->filter-keys (plist &rest keys)
   "Filter the plist to just those matching KEYS.
 
-KEYS must actually be :-less symbols.
-
 `kvalist->filter-keys' is actually used to do this work."
-  (kvalist->plist
-   (apply
-    'kvalist->filter-keys
-    (cons (kvplist->alist plist) keys))))
+  (let ((symkeys (loop for k in keys
+                    collect (let ((strkey (symbol-name k)))
+                              (if (equal (substring strkey 0 1) ":")
+                                  (intern (substring strkey 1))
+                                  k)))))
+    (kvalist->plist
+     (apply
+      'kvalist->filter-keys
+      (cons (kvplist->alist plist) symkeys)))))
 
 (defun kvplist2->filter-keys (plist2 &rest keys)
   "Return the PLIST2 (a list of plists) filtered to the KEYS."
