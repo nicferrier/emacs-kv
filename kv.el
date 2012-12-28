@@ -96,11 +96,34 @@ Returns the value looked up by KEY that passes, so normally:
   (let ((v (kvassoqc key alist)))
     (and v (equal (cdr v) value) v)))
 
-(defun* kvquery->func (query &key (equal-func 'kvassoc))
+(defun kvmatch (key regex alist)
+  "Test the value with KEY in ALIST matches REGEX."
+  (let ((v (kvassoqc key alist)))
+    (and v (string-match regex (cdr v)) v)))
+
+(defun* kvquery->func (query &key
+                             (equal-func 'kvassoc=)
+                             (match-func 'kvmatch))
   "Turn a simple QUERY expression into a filter function.
 
 EQUAL-FUNC is the function that implements the equality
-predicate."
+predicate.
+
+MATCH-FUNC is the function that implements the match predicate.
+
+The query language is:
+
+ | a b  - true if a or b is true
+ & a b  - true only if a and b is true
+ = a b  - true if a equals b as per the EQUAL-FUNC
+ ~ a b  - true if a matches b as per the MATCH-FUNC
+
+So, for example:
+
+ (|(= a b)(= c d))
+
+Means: if `a' equals `b', or if `c' equals `d' then the
+expression is true."
   (flet ((query-parse (query)
            (let ((part (car query))
                  (rest (cdr query)))
@@ -113,6 +136,9 @@ predicate."
                 (cons 'and
                       (loop for i in rest
                          collect (query-parse i))))
+               ((eq part '~)
+                (destructuring-bind (field value) rest
+                  (list match-func field value (quote record))))
                ((eq part '=)
                 (destructuring-bind (field value) rest
                   (list equal-func field value (quote record))))))))
@@ -190,11 +216,12 @@ Only pairs where the car is a `member' of KEYS will be returned."
   "Filter the plist to just those matching KEYS.
 
 `kvalist->filter-keys' is actually used to do this work."
-  (let ((symkeys (loop for k in keys
-                    collect (let ((strkey (symbol-name k)))
-                              (if (equal (substring strkey 0 1) ":")
-                                  (intern (substring strkey 1))
-                                  k)))))
+  (let ((symkeys
+         (loop for k in keys
+            collect (let ((strkey (symbol-name k)))
+                      (if (equal (substring strkey 0 1) ":")
+                          (intern (substring strkey 1))
+                          k)))))
     (kvalist->plist
      (apply
       'kvalist->filter-keys

@@ -84,7 +84,12 @@
   (should
    (equal
     '("testkey" . "testvalue")
-    (kvassoq= 'testkey "testvalue" '(("testkey" . "testvalue"))))))
+    (kvassoq= 'testkey "testvalue" '(("testkey" . "testvalue")))))
+  ;; The nil case, the key isn't present
+  (should
+   (equal
+    nil
+    (kvassoq= 'blah "testvalue" '(("testkey" . "testvalue"))))))
 
 (ert-deftest kvalist2-filter ()
   (should
