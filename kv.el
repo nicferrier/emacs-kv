@@ -297,6 +297,24 @@ Use this as the function to pass to `sort'."
   "Do a sort using `kvcmp'."
   (sort lst 'kvcmp))
 
+(progn
+  (put 'kvalist-key
+       'error-conditions
+       '(error))
+  (put 'kvalist-key
+       'error-message
+       "No such key found in alist."))
+
+(defun kvalist-set-value! (alist key value)
+  "Destructively set the value of KEY to VALUE in ALIST.
+
+If the assoc is not found this adds it to alist."
+  (let ((cell (assoc key alist)))
+    (if (consp cell)
+        (setcdr cell value)
+        ;; Else what to do?
+        (signal 'kvalist-key (list alist key)))))
+
 (defun kvdotassoc-fn (expr table func)
   "Use the dotted EXPR to access deeply nested data in TABLE.
 
