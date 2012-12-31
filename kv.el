@@ -177,11 +177,9 @@ Converting to a symbol means dropping the :."
 
 The keys are expected to be :prefixed and the colons are removed.
 The keys in the resulting alist are symbols."
-  ;; RECURSION KLAXON
   (when plist
-    (destructuring-bind (key value &rest plist) plist
-      (cons `(,(keyword->symbol key) . ,value)
-            (kvplist->alist plist)))))
+    (loop for (key value . rest) on plist by 'cddr
+	  collect (cons (keyword->symbol key) value))))
 
 (defun kvalist2->plist (alist2)
   "Convert a list of alists too a list of plists."
