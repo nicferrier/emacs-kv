@@ -141,6 +141,22 @@
     (dotassq 'a.b.c '((a . ((b . ((c . 10)))))))
     10)))
 
+(ert-deftest keyword->symbol ()
+  "Convert keyword into a symbol without the leading `:'"
+  (should
+   (eq
+    'key
+    (keyword->symbol :key)))
+  (should
+   (eq
+    'key
+    (keyword->symbol 'key)))
+  (let ((sym (gensym)))
+    (should
+     (eq
+      sym
+      (keyword->symbol sym)))))
+
 (ert-deftest kvalist->plist ()
   "Make alists into plists."
   (should

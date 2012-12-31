@@ -168,7 +168,9 @@ expression is true."
   "A keyword is a symbol leading with a :.
 
 Converting to a symbol means dropping the :."
-  (intern (substring (symbol-name keyword) 1)))
+  (if (keywordp keyword)
+      (intern (substring (symbol-name keyword) 1))
+    keyword))
 
 (defun kvplist->alist (plist)
   "Convert PLIST to an alist.
