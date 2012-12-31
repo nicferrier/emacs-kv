@@ -146,7 +146,14 @@
   (should
    (equal
     '(:a1 value1 :a2 value2)
-    (kvalist->plist '((a1 . value1)(a2 . value2))))))
+    (kvalist->plist '((a1 . value1) (a2 . value2))))))
+
+(ert-deftest kvplist->alist ()
+  "Make plists into alists."
+  (should
+   (equal
+    '((a1 . value1) (a2 . value2))
+    (kvplist->alist '(:a1  value1 :a2 value2)))))
 
 (ert-deftest kvplist->filter-keys ()
   (should
