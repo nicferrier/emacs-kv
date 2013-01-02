@@ -141,12 +141,35 @@
     (dotassq 'a.b.c '((a . ((b . ((c . 10)))))))
     10)))
 
+(ert-deftest keyword->symbol ()
+  "Convert keyword into a symbol without the leading `:'"
+  (should
+   (eq
+    'key
+    (keyword->symbol :key)))
+  (should
+   (eq
+    'key
+    (keyword->symbol 'key)))
+  (let ((sym (gensym)))
+    (should
+     (eq
+      sym
+      (keyword->symbol sym)))))
+
 (ert-deftest kvalist->plist ()
   "Make alists into plists."
   (should
    (equal
     '(:a1 value1 :a2 value2)
-    (kvalist->plist '((a1 . value1)(a2 . value2))))))
+    (kvalist->plist '((a1 . value1) (a2 . value2))))))
+
+(ert-deftest kvplist->alist ()
+  "Make plists into alists."
+  (should
+   (equal
+    '((a1 . value1) (a2 . value2))
+    (kvplist->alist '(:a1  value1 :a2 value2)))))
 
 (ert-deftest kvplist->filter-keys ()
   (should
