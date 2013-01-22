@@ -145,9 +145,10 @@ Filter the plist to just those matching //keys//.
 
 [[kvalist->filter-keys]] is actually used to do this work.
 
-=== kvplist->merge old-plist new-plist ===
+=== kvplist->merge &rest plists ===
 
-Merge the keys from new-plist into old-plist and return the new plist.
+Merge the 2nd and subsequent plists into the first, clobbering values set
+by lists to the left.
 
 === kvplist2->filter-keys plist2 &rest keys ===
 

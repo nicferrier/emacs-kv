@@ -385,17 +385,14 @@ SEXP will describe the structure desired."
 
 (defalias 'map-bind 'kvmap-bind)
 
-(defun kvplist-merge (old new)
-  "Merges two plists. The keys from NEW will overwrite the ones in OLD."
-  (let ((key (car new))
-        (val (cadr new))
-        (new (cddr new)))
-    (while (and key val)
-      (setq old (plist-put old key val))
-      (setq key (car new))
-      (setq val (cadr new))
-      (setq new (cddr new)))
-    old))
+(defun kvplist-merge (&rest plists)
+  "Merge the 2nd and subsequent plists into the first, clobbering values set by lists to the left."
+  (let ((result (car plists))
+        (plists (cdr plists)))
+    (loop for plist in plists do
+          (loop for (key val) on plist by 'cddr do
+                (setq result (plist-put result key val))))
+    result))
 
 (provide 'kv)
 (provide 'dotassoc)
