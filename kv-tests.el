@@ -179,4 +179,19 @@
      (list :key1 "value1" :key2 t :key3 '(big list of symbols) :key4 10)
      'key1 'key4))))
 
+(ert-deftest kvplist-merge ()
+  (should
+   (equal
+    '(:key1 "value1" :key2 "new value" :key3 "entirely new")
+    (kvplist-merge '(:key1 "value1" :key2 "old value")
+                   '(:key2 "new value" :key3 "entirely new")))))
+
+(ert-deftest kvplist-merge-multiple ()
+  (should
+   (equal
+    '(:key1 "value1" :key2 "new value" :key3 "overwritten new one" :key4 "second entirely new")
+    (kvplist-merge '(:key1 "value1" :key2 "old value")
+                   '(:key2 "new value" :key3 "entirely new")
+                   '(:key3 "overwritten new one" :key4 "second entirely new")))))
+
 ;;; kv-tests.el ends here
