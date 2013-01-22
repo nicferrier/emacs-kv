@@ -179,7 +179,7 @@ The keys are expected to be :prefixed and the colons are removed.
 The keys in the resulting alist are symbols."
   (when plist
     (loop for (key value . rest) on plist by 'cddr
-	  collect (cons (keyword->symbol key) value))))
+    collect (cons (keyword->symbol key) value))))
 
 (defun kvalist2->plist (alist2)
   "Convert a list of alists too a list of plists."
@@ -384,6 +384,18 @@ SEXP will describe the structure desired."
   `(kv--destructuring-map mapcar ,args ,seq ,sexp))
 
 (defalias 'map-bind 'kvmap-bind)
+
+(defun kvplist-merge (old new)
+  "Merges two plists. The keys from NEW will overwrite the ones in OLD."
+  (let ((key (car new))
+        (val (cadr new))
+        (new (cddr new)))
+    (while (and key val)
+      (setq old (plist-put old key val))
+      (setq key (car new))
+      (setq val (cadr new))
+      (setq new (cddr new)))
+    old))
 
 (provide 'kv)
 (provide 'dotassoc)
