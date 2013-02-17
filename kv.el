@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.12
+;; Version: 0.0.14
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -283,7 +283,16 @@ cons cells."
        collect rec)))
 
 (defun kvidentity (a b)
+  "Returns a cons of A B."
   (cons a b))
+
+(defun kvcar (a b)
+  "Given A B returns A."
+  a)
+
+(defun kvcdr (a b)
+  "Given A B returns B."
+  b)
 
 (defun kvcmp (a b)
   "Do a comparison of the two values using printable syntax.
@@ -386,7 +395,9 @@ SEXP will describe the structure desired."
 (defalias 'map-bind 'kvmap-bind)
 
 (defun kvplist-merge (&rest plists)
-  "Merge the 2nd and subsequent plists into the first, clobbering values set by lists to the left."
+  "Merge the 2nd and subsequent plists into the first.
+
+Values set by lists to the left are clobbered."
   (let ((result (car plists))
         (plists (cdr plists)))
     (loop for plist in plists do
