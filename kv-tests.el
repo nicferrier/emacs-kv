@@ -63,7 +63,13 @@
    (equal
     '((a . 10)(\10 . 20)(\(a\ b\ c\) . 30))
     (kvalist-keys->symbols
-     '(("a" . 10)(10 . 20)((a b c) . 30))))))
+     '(("a" . 10)(10 . 20)((a b c) . 30)))))
+  (should
+   (equal
+    '((a . 10)(\10 . 20)(\(a\ b\ c\) . 30))
+    (kvalist-keys->symbols
+     '(("A" . 10)(10 . 20)((a b c) . 30))
+     :first-fn 'downcase))))
 
 (ert-deftest kvassoc= ()
   (should

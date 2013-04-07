@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.14
+;; Version: 0.0.15
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -270,9 +270,17 @@ cons cells."
       (cdr pair)))
    alist))
 
-(defun kvalist-keys->symbols (alist)
-  "Convert the keys of ALIST into symbols."
-  (kvalist-keys->* alist (lambda (key) (intern (format "%s" key)))))
+(defun* kvalist-keys->symbols (alist &key (first-fn 'identity))
+  "Convert the keys of ALIST into symbols.
+
+If key parameter FIRST-FN is present it should be a function
+which will be used to first transform the string key.  A popular
+choice might be `downcase' for example, to cause all symbol keys
+to be lower-case."
+  (kvalist-keys->*
+   alist
+   (lambda (key)
+     (intern (funcall first-fn (format "%s" key))))))
 
 (defun kvalist2-filter (alist2 fn)
   "Filter the list of alists with FN."
