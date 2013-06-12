@@ -63,6 +63,26 @@ key."
        hash)
       store)))
 
+(defun kva (key alist)
+  "Retrieve the value assigned to KEY in ALIST.
+
+This uses `assoc' as the lookup mechanism."
+  (cdr (assoc key alist)))
+
+(defun kvaq (key alist)
+  "Retrieve the value assigned to KEY in ALIST.
+
+This uses `assq' as the lookup mechanism."
+  (cdr (assq key alist)))
+
+(defun kvaqc (key alist)
+  "Retrieve the value assigned to KEY in ALIST.
+
+This uses first the `assq' and then `assoc' as the lookup
+mechanism."
+  (cdr (or (assq key alist)
+           (assoc key alist))))
+
 (defun kvassoc= (key value alist)
   "Is the value assocd to KEY in ALIST equal to VALUE?
 
