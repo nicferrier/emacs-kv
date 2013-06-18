@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.16
+;; Version: 0.0.17
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -31,6 +31,7 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl))
+
 
 (defun kvalist->hash (alist &rest hash-table-args)
   "Convert ALIST to a HASH.
@@ -183,6 +184,10 @@ expression is true."
                  ((stringp (car pair))
                   (car pair)))))
              (cdr pair))))
+
+(defun kvacons (&rest args)
+  "Make an alist from the plist style args."
+  (kvplist->alist args))
 
 (defun keyword->symbol (keyword)
   "A keyword is a symbol leading with a :.
