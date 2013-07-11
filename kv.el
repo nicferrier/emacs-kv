@@ -7,6 +7,7 @@
 ;; Version: 0.0.17
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
+;; Package-Requires: ((cl-lib "0.2"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,7 +31,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 
 
 (defun kvalist->hash (alist &rest hash-table-args)
@@ -144,7 +145,7 @@ So, for example:
 
 Means: if `a' equals `b', or if `c' equals `d' then the
 expression is true."
-  (flet ((query-parse (query)
+  (cl-flet ((query-parse (query)
            (let ((part (car query))
                  (rest (cdr query)))
              (cond
@@ -409,7 +410,7 @@ FUNC is some sort of `assoc' like function."
 (defmacro kv--destructuring-map (map-function args sequence &rest body)
   "Helper macro for `destructuring-mapcar' and `destructuring-map'."
   (declare (indent 3))
-  (let ((entry (gensym)))
+  (let ((entry (cl-gensym)))
     `(,map-function (lambda (,entry)
                       (destructuring-bind ,args ,entry ,@body))
                     ,sequence)))
