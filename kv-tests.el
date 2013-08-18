@@ -71,6 +71,54 @@
      '(("A" . 10)(10 . 20)((a b c) . 30))
      :first-fn 'downcase))))
 
+(ert-deftest kvfa ()
+  "Destructuring kva through functions."
+  (should
+   (equal '("b")
+          (kvfa "a" '((:a :b)("a" "b"))
+                (lambda (key &rest result) result))))
+  (should
+   (equal "b"
+          (kvfa "a" '((:a :b)("a" "b"))
+                (lambda (k v &rest any) v))))
+  (should
+   (equal "b"
+          (kvfa "a" '((:a . :b)("a" . "b"))
+                (cl-function
+                 (lambda (k v &rest any) v)))))
+  (should
+   (equal 1
+          (kvfa "a" '((:a :b :c 1)("a" "b" :a 1))
+                (cl-function
+                 (lambda (k v &key a) a))))))
+
+(ert-deftest kva ()
+  "Test the simple assoc."
+  (should (equal :b (kva :a '((:a . :b)("a" . "b")))))
+  (should (equal "b" (kva "a" '((:a . :b)("a" . "b")))))
+  (should-not (kva "b" '((:a . :b)("a" . "b")))))
+
+(ert-deftest kvaq ()
+  "Test the simple assq."
+  (should (equal :b (kvaq :a '((:a . :b)("a" . "b")))))
+  (should (equal 2 (kvaq 1 '((1 . 2)("a" . "b")))))
+  (should-not (equal "b" (kvaq "a" '((:a . :b)("a" . "b")))))
+  (should-not (kvaq "b" '((:a . :b)("a" . "b")))))
+
+(ert-deftest kvaq ()
+  "Test the simple assq."
+  (should (equal :b (kvaq :a '((:a . :b)("a" . "b")))))
+  (should (equal 2 (kvaq 1 '((1 . 2)("a" . "b")))))
+  (should-not (equal "b" (kvaq "a" '((:a . :b)("a" . "b")))))
+  (should-not (kvaq "b" '((:a . :b)("a" . "b")))))
+
+(ert-deftest kvaqc ()
+  "Test the simple assq."
+  (should (equal :b (kvaqc :a '((:a . :b)("a" . "b")))))
+  (should (equal 2 (kvaqc 1 '((1 . 2)("a" . "b")))))
+  (should (equal "b" (kvaqc "a" '((:a . :b)("a" . "b")))))
+  (should-not (kvaqc "b" '((:a . :b)("a" . "b")))))
+
 (ert-deftest kvassoc= ()
   (should
    (equal

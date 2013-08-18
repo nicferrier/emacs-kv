@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.17
+;; Version: 0.0.18
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -63,6 +63,15 @@ key."
                (setq store (acons key value store)))))
        hash)
       store)))
+
+(defun kvfa (key alist receive)
+  "Call RECEIVE with whatever comes out of ALIST for KEY.
+
+RECEIVE can do whatever destructuring you want, the first
+argument is always the car of the alist pair."
+  (apply receive (let ((a (assoc key alist)))
+                   (append (list (car a))
+                           (if (listp (cdr a))(cdr a)(list (cdr a)))))))
 
 (defun kva (key alist)
   "Retrieve the value assigned to KEY in ALIST.
