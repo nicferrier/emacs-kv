@@ -211,6 +211,11 @@
       sym
       (keyword->symbol sym)))))
 
+
+(ert-deftest kvthing->keyword ()
+  (should (equal :one (kvthing->keyword "one")))
+  (should (equal :one (kvthing->keyword ":one"))))
+
 (ert-deftest kvalist->plist ()
   "Make alists into plists."
   (should

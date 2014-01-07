@@ -4,7 +4,7 @@
 
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Keywords: lisp
-;; Version: 0.0.18
+;; Version: 0.0.19
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 7th September 2012
 
@@ -179,19 +179,22 @@ expression is true."
      if (equal (plist-get plist keyword) value)
      return plist))
 
+(defun kvthing->keyword (str-or-symbol)
+  "Convert STR-OR-SYMBOL into a keyword symbol."
+  (let ((str
+         (cond
+           ((symbolp thing) (symbol-name thing))
+           ((stringp thing) thing))))
+    (intern
+     (if (eq (aref str 0) ?:) str (concat ":" str)))))
+
 (defun kvalist->plist (alist)
   "Convert an alist to a plist."
   ;; Why doesn't elisp provide this?
   (loop for pair in alist
      append (list
-             (intern
-              (concat
-               ":"
-               (cond
-                 ((symbolp (car pair))
-                  (symbol-name (car pair)))
-                 ((stringp (car pair))
-                  (car pair)))))
+             (kvthing->keyword
+              (car pair))
              (cdr pair))))
 
 (defun kvacons (&rest args)
