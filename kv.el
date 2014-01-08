@@ -183,8 +183,8 @@ expression is true."
   "Convert STR-OR-SYMBOL into a keyword symbol."
   (let ((str
          (cond
-           ((symbolp thing) (symbol-name thing))
-           ((stringp thing) thing))))
+           ((symbolp str-or-symbol) (symbol-name str-or-symbol))
+           ((stringp str-or-symbol) str-or-symbol))))
     (intern
      (if (eq (aref str 0) ?:) str (concat ":" str)))))
 
