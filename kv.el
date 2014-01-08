@@ -209,14 +209,20 @@ Converting to a symbol means dropping the :."
       (intern (substring (symbol-name keyword) 1))
     keyword))
 
-(defun kvplist->alist (plist)
+(defun kvplist->alist (plist &optional keys-are-keywords)
   "Convert PLIST to an alist.
 
-The keys are expected to be :prefixed and the colons are removed.
-The keys in the resulting alist are symbols."
+The keys are expected to be :prefixed and the colons are removed
+unless KEYS-ARE-KEYWORDS is `t'.
+
+The keys in the resulting alist are always symbols."
   (when plist
     (loop for (key value . rest) on plist by 'cddr
-    collect (cons (keyword->symbol key) value))))
+       collect
+         (cons (if keys-are-keywords
+                   key
+                   (keyword->symbol key))
+               value))))
 
 (defun kvalist2->plist (alist2)
   "Convert a list of alists too a list of plists."
