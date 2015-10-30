@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(require 'cl)
 
 
 (defun kvalist->hash (alist &rest hash-table-args)
