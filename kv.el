@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 
 
 (defun kvalist->hash (alist &rest hash-table-args)
@@ -58,9 +58,9 @@ key."
            (if (and (functionp func))
                (let ((res (funcall func key value)))
                  (when res
-                   (setq store (acons key res store))))
+                   (setq store (cl-acons key res store))))
                ;; else no filtering, just return
-               (setq store (acons key value store)))))
+               (setq store (cl-acons key value store)))))
        hash)
       store)))
 
@@ -130,9 +130,9 @@ Returns the value looked up by KEY that passes, so normally:
   (let ((v (kvassoqc key alist)))
     (and v (string-match regex (cdr v)) v)))
 
-(defun* kvquery->func (query &key
-                             (equal-func 'kvassoc=)
-                             (match-func 'kvmatch))
+(cl-defun kvquery->func (query &key
+                               (equal-func 'kvassoc=)
+                               (match-func 'kvmatch))
   "Turn a simple QUERY expression into a filter function.
 
 EQUAL-FUNC is the function that implements the equality
@@ -153,31 +153,31 @@ So, for example:
 
 Means: if `a' equals `b', or if `c' equals `d' then the
 expression is true."
-  (flet ((query-parse (query)
-           (let ((part (car query))
-                 (rest (cdr query)))
-             (cond
-               ((eq part '|)
-                (cons 'or
-                      (loop for i in rest
-                         collect (query-parse i))))
-               ((eq part '&)
-                (cons 'and
-                      (loop for i in rest
-                         collect (query-parse i))))
-               ((eq part '~)
-                (destructuring-bind (field value) rest
-                  (list match-func field value (quote record))))
-               ((eq part '=)
-                (destructuring-bind (field value) rest
-                  (list equal-func field value (quote record))))))))
+  (cl-labels ((query-parse (query)
+                (let ((part (car query))
+                      (rest (cdr query)))
+                  (cond
+                   ((eq part '|)
+                    (cons 'or
+                          (cl-loop for i in rest
+                                   collect (query-parse i))))
+                   ((eq part '&)
+                    (cons 'and
+                          (cl-loop for i in rest
+                                   collect (query-parse i))))
+                   ((eq part '~)
+                    (cl-destructuring-bind (field value) rest
+                      (list match-func field value (quote record))))
+                   ((eq part '=)
+                    (cl-destructuring-bind (field value) rest
+                      (list equal-func field value (quote record))))))))
     (eval `(lambda (record) ,(query-parse query)))))
 
 (defun kvplist2get (plist2 keyword value)
   "Get the plist with KEYWORD / VALUE from the list of plists."
-  (loop for plist in plist2
-     if (equal (plist-get plist keyword) value)
-     return plist))
+  (cl-loop for plist in plist2
+           if (equal (plist-get plist keyword) value)
+           return plist))
 
 (defun kvthing->keyword (str-or-symbol)
   "Convert STR-OR-SYMBOL into a keyword symbol."
@@ -191,11 +191,11 @@ expression is true."
 (defun kvalist->plist (alist)
   "Convert an alist to a plist."
   ;; Why doesn't elisp provide this?
-  (loop for pair in alist
-     append (list
-             (kvthing->keyword
-              (car pair))
-             (cdr pair))))
+  (cl-loop for pair in alist
+           append (list
+                   (kvthing->keyword
+                    (car pair))
+                   (cdr pair))))
 
 (defun kvacons (&rest args)
   "Make an alist from the plist style args."
@@ -217,18 +217,18 @@ unless KEYS-ARE-KEYWORDS is `t'.
 
 The keys in the resulting alist are always symbols."
   (when plist
-    (loop for (key value . rest) on plist by 'cddr
-       collect
-         (cons (if keys-are-keywords
-                   key
-                   (keyword->symbol key))
-               value))))
+    (cl-loop for (key value . rest) on plist by 'cddr
+             collect
+             (cons (if keys-are-keywords
+                       key
+                     (keyword->symbol key))
+                   value))))
 
 (defun kvalist2->plist (alist2)
   "Convert a list of alists too a list of plists."
-  (loop for alist in alist2
-       append
-       (list (kvalist->plist alist))))
+  (cl-loop for alist in alist2
+           append
+           (list (kvalist->plist alist))))
 
 (defun kvalist->keys (alist)
   "Get just the keys from the alist."
@@ -250,20 +250,20 @@ The keys in the resulting alist are always symbols."
   "Return the ALIST filtered to the KEYS list.
 
 Only pairs where the car is a `member' of KEYS will be returned."
-  (loop for a in alist
-     if (member (car a) keys)
-     collect a))
+  (cl-loop for a in alist
+           if (member (car a) keys)
+           collect a))
 
 (defun kvplist->filter-keys (plist &rest keys)
   "Filter the plist to just those matching KEYS.
 
 `kvalist->filter-keys' is actually used to do this work."
   (let ((symkeys
-         (loop for k in keys
-            collect (let ((strkey (symbol-name k)))
-                      (if (equal (substring strkey 0 1) ":")
-                          (intern (substring strkey 1))
-                          k)))))
+         (cl-loop for k in keys
+                  collect (let ((strkey (symbol-name k)))
+                            (if (equal (substring strkey 0 1) ":")
+                                (intern (substring strkey 1))
+                              k)))))
     (kvalist->plist
      (apply
       'kvalist->filter-keys
@@ -271,13 +271,13 @@ Only pairs where the car is a `member' of KEYS will be returned."
 
 (defun kvplist2->filter-keys (plist2 &rest keys)
   "Return the PLIST2 (a list of plists) filtered to the KEYS."
-  (loop for plist in plist2
-     collect (apply 'kvplist->filter-keys (cons plist keys))))
+  (cl-loop for plist in plist2
+           collect (apply 'kvplist->filter-keys (cons plist keys))))
 
 (defun kvalist2->filter-keys (alist2 &rest keys)
   "Return the ALIST2 (a list of alists) filtered to the KEYS."
-  (loop for alist in alist2
-     collect (apply 'kvalist->filter-keys (cons alist keys))))
+  (cl-loop for alist in alist2
+           collect (apply 'kvalist->filter-keys (cons alist keys))))
 
 (defun kvalist2->alist (alist2 car-key cdr-key &optional proper)
   "Reduce the ALIST2 (a list of alists) to a single alist.
@@ -298,11 +298,11 @@ could be reduced to:
 
 If PROPER is `t' then the alist is a list of proper lists, not
 cons cells."
-  (loop for alist in alist2
-       collect (apply (if proper 'list 'cons)
-                      (list
-                       (assoc-default car-key alist)
-                       (assoc-default cdr-key alist)))))
+  (cl-loop for alist in alist2
+           collect (apply (if proper 'list 'cons)
+                          (list
+                           (assoc-default car-key alist)
+                           (assoc-default cdr-key alist)))))
 
 (defun kvalist-keys->* (alist fn)
   "Convert the keys of ALIST through FN."
@@ -313,7 +313,7 @@ cons cells."
       (cdr pair)))
    alist))
 
-(defun* kvalist-keys->symbols (alist &key (first-fn 'identity))
+(cl-defun kvalist-keys->symbols (alist &key (first-fn 'identity))
   "Convert the keys of ALIST into symbols.
 
 If key parameter FIRST-FN is present it should be a function
@@ -328,10 +328,10 @@ to be lower-case."
 (defun kvalist2-filter (alist2 fn)
   "Filter the list of alists with FN."
   (let (value)
-    (loop for rec in alist2
-       do (setq value (funcall fn rec))
-       if value
-       collect rec)))
+    (cl-loop for rec in alist2
+             do (setq value (funcall fn rec))
+             if value
+             collect rec)))
 
 (defun kvidentity (a b)
   "Returns a cons of A B."
@@ -429,7 +429,7 @@ FUNC is some sort of `assoc' like function."
   (declare (indent 3))
   (let ((entry (gensym)))
     `(,map-function (lambda (,entry)
-                      (destructuring-bind ,args ,entry ,@body))
+                      (cl-destructuring-bind ,args ,entry ,@body))
                     ,sequence)))
 
 (defmacro kvmap-bind (args sexp seq)
@@ -451,9 +451,9 @@ SEXP will describe the structure desired."
 Values set by lists to the left are clobbered."
   (let ((result (car plists))
         (plists (cdr plists)))
-    (loop for plist in plists do
-          (loop for (key val) on plist by 'cddr do
-                (setq result (plist-put result key val))))
+    (cl-loop for plist in plists do
+             (cl-loop for (key val) on plist by 'cddr do
+                      (setq result (plist-put result key val))))
     result))
 
 (provide 'kv)
