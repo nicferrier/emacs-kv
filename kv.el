@@ -159,11 +159,11 @@ expression is true."
              (cond
                ((eq part '|)
                 (cons 'or
-                      (loop for i in rest
+                      (cl-loop for i in rest
                          collect (query-parse i))))
                ((eq part '&)
                 (cons 'and
-                      (loop for i in rest
+                      (cl-loop for i in rest
                          collect (query-parse i))))
                ((eq part '~)
                 (destructuring-bind (field value) rest
@@ -175,7 +175,7 @@ expression is true."
 
 (defun kvplist2get (plist2 keyword value)
   "Get the plist with KEYWORD / VALUE from the list of plists."
-  (loop for plist in plist2
+  (cl-loop for plist in plist2
      if (equal (plist-get plist keyword) value)
      return plist))
 
@@ -191,7 +191,7 @@ expression is true."
 (defun kvalist->plist (alist)
   "Convert an alist to a plist."
   ;; Why doesn't elisp provide this?
-  (loop for pair in alist
+  (cl-loop for pair in alist
      append (list
              (kvthing->keyword
               (car pair))
@@ -217,7 +217,7 @@ unless KEYS-ARE-KEYWORDS is `t'.
 
 The keys in the resulting alist are always symbols."
   (when plist
-    (loop for (key value . rest) on plist by 'cddr
+    (cl-loop for (key value . rest) on plist by 'cddr
        collect
          (cons (if keys-are-keywords
                    key
@@ -226,7 +226,7 @@ The keys in the resulting alist are always symbols."
 
 (defun kvalist2->plist (alist2)
   "Convert a list of alists too a list of plists."
-  (loop for alist in alist2
+  (cl-loop for alist in alist2
        append
        (list (kvalist->plist alist))))
 
@@ -250,7 +250,7 @@ The keys in the resulting alist are always symbols."
   "Return the ALIST filtered to the KEYS list.
 
 Only pairs where the car is a `member' of KEYS will be returned."
-  (loop for a in alist
+  (cl-loop for a in alist
      if (member (car a) keys)
      collect a))
 
@@ -259,7 +259,7 @@ Only pairs where the car is a `member' of KEYS will be returned."
 
 `kvalist->filter-keys' is actually used to do this work."
   (let ((symkeys
-         (loop for k in keys
+         (cl-loop for k in keys
             collect (let ((strkey (symbol-name k)))
                       (if (equal (substring strkey 0 1) ":")
                           (intern (substring strkey 1))
@@ -271,12 +271,12 @@ Only pairs where the car is a `member' of KEYS will be returned."
 
 (defun kvplist2->filter-keys (plist2 &rest keys)
   "Return the PLIST2 (a list of plists) filtered to the KEYS."
-  (loop for plist in plist2
+  (cl-loop for plist in plist2
      collect (apply 'kvplist->filter-keys (cons plist keys))))
 
 (defun kvalist2->filter-keys (alist2 &rest keys)
   "Return the ALIST2 (a list of alists) filtered to the KEYS."
-  (loop for alist in alist2
+  (cl-loop for alist in alist2
      collect (apply 'kvalist->filter-keys (cons alist keys))))
 
 (defun kvalist2->alist (alist2 car-key cdr-key &optional proper)
@@ -298,7 +298,7 @@ could be reduced to:
 
 If PROPER is `t' then the alist is a list of proper lists, not
 cons cells."
-  (loop for alist in alist2
+  (cl-loop for alist in alist2
        collect (apply (if proper 'list 'cons)
                       (list
                        (assoc-default car-key alist)
@@ -328,7 +328,7 @@ to be lower-case."
 (defun kvalist2-filter (alist2 fn)
   "Filter the list of alists with FN."
   (let (value)
-    (loop for rec in alist2
+    (cl-loop for rec in alist2
        do (setq value (funcall fn rec))
        if value
        collect rec)))
@@ -451,8 +451,8 @@ SEXP will describe the structure desired."
 Values set by lists to the left are clobbered."
   (let ((result (car plists))
         (plists (cdr plists)))
-    (loop for plist in plists do
-          (loop for (key val) on plist by 'cddr do
+    (cl-loop for plist in plists do
+          (cl-loop for (key val) on plist by 'cddr do
                 (setq result (plist-put result key val))))
     result))
 
